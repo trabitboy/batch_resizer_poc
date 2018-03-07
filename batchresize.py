@@ -1,4 +1,6 @@
+# 15 min
 # +10 min
+# +20 min
 
 #poc for the great M
 import pygame
@@ -11,6 +13,9 @@ HEIGHT=480
 pygame.init()
 DISPLAYSURF = pygame.display.set_mode((WIDTH, HEIGHT))
 WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+
+selection=pygame.Rect(100,100,200,200);
 
 
 #poc, pic list here
@@ -30,10 +35,14 @@ def goToNextPic():
     #TODO move slot
 
 def displayUI():
-    ctx.DISPLAYSURF.fill(WHITE)
-    ctx.DISPLAYSURF.blit(currentsurf,bgRect)
+    DISPLAYSURF.fill(WHITE)
+    DISPLAYSURF.blit(currentsurf,bgRect)
+    pygame.draw.rect(DISPLAYSURF,RED,selection,3)
+    pygame.display.update()
 
-while True:
+running=True
+
+while running:
 
     #UI display
     displayUI()
@@ -41,9 +50,15 @@ while True:
     for event in pygame.event.get(): # event handling loop
         if event.type == QUIT:
             pygame.quit()
-
+            running=False
         elif event.type == MOUSEBUTTONDOWN:
             print("mouse button down")
+            pos=pygame.mouse.get_pos()
+            selection.x=pos[0]
+            selection.y=pos[1]
+            
+        elif event.type == MOUSEMOTION:
+            print("mouse button move")
     ##        self.quit=True
             #terminate()
     # Possible joystick actions: JOYAXISMOTION JOYBALLMOTION JOYBUTTONDOWN JOYBUTTONUP JOYHATMOTION
@@ -53,7 +68,9 @@ while True:
             #print("Joystick button released.")
         elif event.type == MOUSEBUTTONUP:
             print("mouse button up")
-        
+            pos=pygame.mouse.get_pos()
+            selection.w=pos[0]-selection.x
+            selection.h=pos[1]-selection.y
         elif event.type == KEYDOWN:
             if event.key == ( K_f):
                 goToNextPic()

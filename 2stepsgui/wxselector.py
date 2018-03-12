@@ -1,14 +1,18 @@
+### creates a drag and drop window to select image files
+## blocking until you close it
+
 import wx
- 
+
 ########################################################################
 class MyFileDropTarget(wx.FileDropTarget):
     """"""
  
     #----------------------------------------------------------------------
-    def __init__(self, window):
+    def __init__(self, window,dnded):
         """Constructor"""
         wx.FileDropTarget.__init__(self)
         self.window = window
+        self.dnded=dnded
  
     #----------------------------------------------------------------------
     def OnDropFiles(self, x, y, filenames):
@@ -16,24 +20,24 @@ class MyFileDropTarget(wx.FileDropTarget):
         When files are dropped, write where they were dropped and then
         the file paths themselves
         """
-        print("dropped")
         self.window.SetInsertionPointEnd()
         self.window.updateText("\n%d file(s) dropped at %d,%d:\n" %
                               (len(filenames), x, y))
         for filepath in filenames:
-            self.window.updateText(filepath + '\n')    
-
-
+            self.window.updateText(filepath + '\n')
+            self.dnded.append(filepath)
+        print(self.dnded)
+ 
 ########################################################################
 class DnDPanel(wx.Panel):
     """"""
  
     #----------------------------------------------------------------------
-    def __init__(self, parent):
+    def __init__(self, parent,dnded):
         """Constructor"""
         wx.Panel.__init__(self, parent=parent)
  
-        file_drop_target = MyFileDropTarget(self)
+        file_drop_target = MyFileDropTarget(self,dnded)
         lbl = wx.StaticText(self, label="Drag some files here:")
         self.fileTextCtrl = wx.TextCtrl(self,
                                         style=wx.TE_MULTILINE|wx.HSCROLL|wx.TE_READONLY)
@@ -63,14 +67,15 @@ class DnDFrame(wx.Frame):
     """"""
  
     #----------------------------------------------------------------------
-    def __init__(self):
+    def __init__(self,dnded):
         """Constructor"""
         wx.Frame.__init__(self, parent=None, title="DnD Tutorial")
-        panel = DnDPanel(self)
+        panel = DnDPanel(self,dnded)
         self.Show()
  
 #----------------------------------------------------------------------
-if __name__ == "__main__":
+
+def createDnd(dnded):
     app = wx.App(False)
-    frame = DnDFrame()
+    frame = DnDFrame(dnded)
     app.MainLoop()

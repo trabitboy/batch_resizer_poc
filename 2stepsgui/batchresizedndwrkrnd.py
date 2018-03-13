@@ -5,6 +5,7 @@
 # + 45 min
 # + 2H wx widg research
 # +5 min
+# +42 min refactor and go to next pic
 
 #TODO
 # scale down picture larger than viewport,

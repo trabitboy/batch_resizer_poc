@@ -10,7 +10,7 @@
 #make 3 different crops with buttons in wx widgets part 2
 #save over source picture 1
 
-
+# test push for M
 
 # 15 min
 # +10 min

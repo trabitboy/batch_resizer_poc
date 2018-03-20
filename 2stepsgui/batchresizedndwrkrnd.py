@@ -20,6 +20,7 @@
 # + 2H wx widg research
 # +5 min
 # +42 min refactor and go to next pic
+# +1h10 zoom and scale without nav
 
 #TODO
 # scale down picture larger than viewport,

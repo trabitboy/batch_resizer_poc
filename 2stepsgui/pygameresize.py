@@ -5,6 +5,11 @@ import pygame
 import os
 from pygame.locals import *
 
+#for test
+initialzoom=2
+initvpx=100
+initvpy=100
+
 WIDTH=800
 HEIGHT=600
 
@@ -17,9 +22,20 @@ class PygContext(object):
         self.WHITE = (255, 255, 255)
         self.RED = (255, 0, 0)
         self.selection=None
+        #here the pic in original size
         self.currentsurf=None
+        #here the pic scaled to current zoom level, for display
+        self.zoomedsurf=None
         self.currentpicname=None
         self.msg=None        
+        self.zoom=None
+        #when pointing and zooming with mouse wheel
+        #this is the center of the zoom in SOURCE SURFACE COORDINATES
+        self.xzoomcenter=None
+        self.yzoomcenter=None
+        #when moving viewport around , in SOURCE SURFACE COORDINATES
+        self.xviewport=None
+        self.yviewport=None
 
 def scalesave(ctx):
         print("saving then changing slot")
@@ -45,6 +61,18 @@ def setCurrentPic(ctx,pathandname):
     ctx.currentsurf=pygame.image.load(pathandname)
     ctx.currentpicname=pathandname
     ctx.msg = ctx.BASICFONT.render(ctx.currentpicname, True, ctx.RED)
+
+    ctx.zoom=initialzoom
+
+    #zooming whole picture ? let's be stupid
+    #(huge ram usage, needs to be optimized later )
+    tgtw=ctx.currentsurf.get_width()*2
+    tgth=ctx.currentsurf.get_height()*2
+    
+    ctx.zoomedsurf=pygame.transform.scale(ctx.currentsurf,(tgtw,tgth))
+    
+    ctx.xviewport=initvpx
+    ctx.yviewport=initvpy
     ##    currentpicname=piclist[num]
     ##
     ##    msg = BASICFONT.render(currentpicname, True, RED)
@@ -93,8 +121,13 @@ def createPygameResizeWindow(dnded):
 
     def displayUI():
         ctx.DISPLAYSURF.fill(ctx.WHITE)
-        ctx.DISPLAYSURF.blit(ctx.currentsurf,bgRect)
-        pygame.draw.rect(ctx.DISPLAYSURF,ctx.RED,ctx.selection,3)
+#        ctx.DISPLAYSURF.blit(ctx.currentsurf,bgRect)
+        ctx.DISPLAYSURF.blit(ctx.zoomedsurf,bgRect,pygame.Rect(ctx.xviewport*ctx.zoom,ctx.yviewport*ctx.zoom,WIDTH,HEIGHT))
+
+        todisp=pygame.Rect((ctx.selection.x-ctx.xviewport)*ctx.zoom,(ctx.selection.y-ctx.yviewport)*ctx.zoom,ctx.selection.w*ctx.zoom,ctx.selection.h*ctx.zoom)
+
+        pygame.draw.rect(ctx.DISPLAYSURF,ctx.RED,todisp,3)
+
         ctx.DISPLAYSURF.blit(ctx.msg,(0,0))
         pygame.display.update()
 
@@ -112,14 +145,14 @@ def createPygameResizeWindow(dnded):
             elif event.type == MOUSEBUTTONDOWN:
                 print("mouse button down")
                 pos=pygame.mouse.get_pos()
-                ctx.selection.x=pos[0]
-                ctx.selection.y=pos[1]
+                ctx.selection.x=pos[0]/ctx.zoom +ctx.xviewport
+                ctx.selection.y=pos[1]/ctx.zoom+ctx.yviewport
                 
             elif event.type == MOUSEMOTION:
                 print("mouse button move")
                 pos=pygame.mouse.get_pos()
-                tw=pos[0]-ctx.selection.x
-                th=pos[1]-ctx.selection.y
+                tw=pos[0]/ctx.zoom+ctx.xviewport-ctx.selection.x
+                th=pos[1]/ctx.zoom+ctx.yviewport-ctx.selection.y
 
                 tgt=None
                 if tw>=th :
